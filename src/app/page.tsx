@@ -1,12 +1,27 @@
 "use client";
 
 import React from "react";
+import dynamic from "next/dynamic";
 import { useGreedGame, MULTIPLIERS } from "@/hooks/useGreedGame";
 import { Header } from "@/components/ui/Header";
-import { Greed3DScene } from "@/components/canvas/Greed3DScene";
 import { GreedCertificateModal } from "@/components/ui/GreedCertificateModal";
 import { TokenBanner } from "@/components/ui/TokenBanner";
 import { Flame, ShieldAlert, Award, ArrowRight, RotateCcw, Zap } from "lucide-react";
+
+const Greed3DScene = dynamic(
+  () => import("@/components/canvas/Greed3DScene").then((m) => m.Greed3DScene),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="w-full h-full flex items-center justify-center bg-vaultBg">
+        <div className="flex flex-col items-center gap-3 font-mono">
+          <div className="w-9 h-9 rounded-full border-2 border-goldAccent border-t-transparent animate-spin" />
+          <span className="text-xs text-textMuted tracking-wider animate-pulse">ENTERING 3D VAULT...</span>
+        </div>
+      </div>
+    ),
+  }
+);
 
 export default function GreedVaultPage() {
   const {
@@ -49,7 +64,7 @@ export default function GreedVaultPage() {
       />
 
       {/* 2. Main 3D Viewport & HUD Overlay */}
-      <div className="relative flex-1 w-full h-full overflow-hidden">
+      <div className="relative flex-1 min-h-0 w-full h-full overflow-hidden">
         {/* Real-Time Three.js WebGL Scene */}
         <Greed3DScene
           gameStatus={gameStatus}

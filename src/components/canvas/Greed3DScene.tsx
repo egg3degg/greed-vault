@@ -76,8 +76,8 @@ export function Greed3DScene({ gameStatus, lastOutcome, currentMultiplier }: Gre
     const container = containerRef.current;
     if (!container) return;
 
-    const width = container.clientWidth || window.innerWidth;
-    const height = container.clientHeight || window.innerHeight;
+    const width = container.clientWidth > 0 ? container.clientWidth : window.innerWidth;
+    const height = container.clientHeight > 0 ? container.clientHeight : Math.max(window.innerHeight - 140, 450);
 
     // 1. Scene & Camera
     const scene = new THREE.Scene();
@@ -89,7 +89,7 @@ export function Greed3DScene({ gameStatus, lastOutcome, currentMultiplier }: Gre
     camera.lookAt(0, 0.6, 0);
 
     // 2. Renderer
-    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: "high-performance" });
     renderer.setSize(width, height);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.shadowMap.enabled = true;
@@ -292,12 +292,19 @@ export function Greed3DScene({ gameStatus, lastOutcome, currentMultiplier }: Gre
 
     const handleResize = () => {
       if (!container) return;
-      const newW = container.clientWidth;
-      const newH = container.clientHeight;
-      camera.aspect = newW / newH;
-      camera.updateProjectionMatrix();
-      renderer.setSize(newW, newH);
+      const newW = container.clientWidth > 0 ? container.clientWidth : window.innerWidth;
+      const newH = container.clientHeight > 0 ? container.clientHeight : Math.max(window.innerHeight - 140, 450);
+      if (newW > 0 && newH > 0) {
+        camera.aspect = newW / newH;
+        camera.updateProjectionMatrix();
+        renderer.setSize(newW, newH);
+      }
     };
+
+    const resizeObserver = new ResizeObserver(() => {
+      handleResize();
+    });
+    resizeObserver.observe(container);
 
     window.addEventListener("mousemove", handleMouseMove);
     window.addEventListener("resize", handleResize);
@@ -374,6 +381,7 @@ export function Greed3DScene({ gameStatus, lastOutcome, currentMultiplier }: Gre
 
     // Cleanup on unmount
     return () => {
+      resizeObserver.disconnect();
       window.removeEventListener("mousemove", handleMouseMove);
       window.removeEventListener("resize", handleResize);
       if (animFrameIdRef.current) cancelAnimationFrame(animFrameIdRef.current);
