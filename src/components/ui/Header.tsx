@@ -10,6 +10,9 @@ interface HeaderProps {
   onSelectGameMode: (mode: GameMode) => void;
   arcadeBalance: number;
   onResetArcadeBalance: () => void;
+  walletAddress: string | null;
+  onConnectWallet: () => Promise<void>;
+  onOpenTributeModal: () => void;
 }
 
 export function Header({
@@ -17,28 +20,20 @@ export function Header({
   onSelectGameMode,
   arcadeBalance,
   onResetArcadeBalance,
+  walletAddress,
+  onConnectWallet,
+  onOpenTributeModal,
 }: HeaderProps) {
   const [isMuted, setIsMuted] = useState<boolean>(soundEngine.getMuted());
-  const [walletAddress, setWalletAddress] = useState<string | null>(null);
 
   const toggleSound = () => {
     const nextMuted = soundEngine.toggleMuted();
     setIsMuted(nextMuted);
   };
 
-  const handleConnectWallet = async () => {
+  const handleWalletClick = async () => {
     soundEngine.playClick();
-    if (typeof window !== "undefined" && (window as unknown as { solana?: { isPhantom?: boolean; connect: () => Promise<{ publicKey: { toString: () => string } }> } }).solana) {
-      try {
-        const solana = (window as unknown as { solana: { connect: () => Promise<{ publicKey: { toString: () => string } }> } }).solana;
-        const res = await solana.connect();
-        setWalletAddress(res.publicKey.toString());
-      } catch (err) {
-        console.error("User rejected wallet connection:", err);
-      }
-    } else {
-      alert("Phantom wallet not detected. Please install Phantom from phantom.app to use Real SOL mode!");
-    }
+    await onConnectWallet();
   };
 
   return (
@@ -109,7 +104,7 @@ export function Header({
           </div>
         ) : (
           <button
-            onClick={handleConnectWallet}
+            onClick={handleWalletClick}
             className="flex items-center gap-2 bg-emeraldWin/15 border border-emeraldWin/30 text-emeraldWin px-3 py-1.5 rounded-xl font-bold hover:bg-emeraldWin/25 transition-all"
           >
             <Wallet className="w-3.5 h-3.5" />
@@ -120,6 +115,16 @@ export function Header({
             </span>
           </button>
         )}
+
+        {/* Direct Feed the Dev Button */}
+        <button
+          onClick={onOpenTributeModal}
+          className="px-2.5 py-1.5 rounded-xl bg-goldAccent/20 hover:bg-goldAccent text-goldAccent hover:text-black border border-goldAccent/40 font-bold transition-all flex items-center gap-1 shadow-[0_0_15px_rgba(255,215,0,0.2)]"
+          title="Send voluntary SOL tribute directly to developer wallet"
+        >
+          <Flame className="w-3.5 h-3.5" />
+          <span className="hidden sm:inline">FEED DEV</span>
+        </button>
 
         {/* Audio Mute Toggle */}
         <button

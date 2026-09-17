@@ -1,12 +1,46 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import dynamic from "next/dynamic";
 import { useGreedGame, MULTIPLIERS } from "@/hooks/useGreedGame";
 import { Header } from "@/components/ui/Header";
 import { GreedCertificateModal } from "@/components/ui/GreedCertificateModal";
+import { DevTributeModal } from "@/components/ui/DevTributeModal";
+import { TributeLeaderboard } from "@/components/ui/TributeLeaderboard";
 import { TokenBanner } from "@/components/ui/TokenBanner";
-import { Flame, ShieldAlert, Award, ArrowRight, RotateCcw, Zap } from "lucide-react";
+import { TributeItem } from "@/lib/solanaTribute";
+import { soundEngine } from "@/lib/soundEngine";
+import { Flame, ShieldAlert, Award, ArrowRight, RotateCcw, Zap, Trophy } from "lucide-react";
+
+const INITIAL_TRIBUTES: TributeItem[] = [
+  {
+    id: "trib_seed_1",
+    senderAddress: "8xKr3aB9vK8bN7cV4xZ1pL3qR4n9M",
+    amountSol: 0.5,
+    message: "Take my SOL dev just make green candles",
+    txSignature: "5wK...",
+    timestamp: "12m ago",
+    badge: "🐋 APEX WHALE",
+  },
+  {
+    id: "trib_seed_2",
+    senderAddress: "3vPL9qRxZ1pL3qRvK8bN7c7zTq",
+    amountSol: 0.1,
+    message: "Stay awake tonight dev we are raiding",
+    txSignature: "4jX...",
+    timestamp: "35m ago",
+    badge: "👑 SUGAR DADDY",
+  },
+  {
+    id: "trib_seed_3",
+    senderAddress: "Dk9aZ1pL3qRvK8bN7cV4x1pL8",
+    amountSol: 0.05,
+    message: "Pepperoni pizza for the trench shift 🍕",
+    txSignature: "2mA...",
+    timestamp: "1h ago",
+    badge: "🍕 PIZZA SPONSOR",
+  },
+];
 
 const Greed3DScene = dynamic(
   () => import("@/components/canvas/Greed3DScene").then((m) => m.Greed3DScene),
@@ -46,12 +80,36 @@ export default function GreedVaultPage() {
     resetRun,
   } = useGreedGame();
 
+  const [walletAddress, setWalletAddress] = useState<string | null>(null);
+  const [isTributeModalOpen, setIsTributeModalOpen] = useState<boolean>(false);
+  const [showLeaderboard, setShowLeaderboard] = useState<boolean>(false);
+  const [tributes, setTributes] = useState<TributeItem[]>(INITIAL_TRIBUTES);
+
   const isFlipping = gameStatus === "FLIPPING";
   const isIdle = gameStatus === "IDLE";
   const isWon = gameStatus === "ROUND_WON";
   const isBusted = gameStatus === "BUSTED";
 
   const wagerOptions = [0.1, 0.25, 0.5, 1.0, 2.0];
+
+  const handleConnectWallet = async () => {
+    soundEngine.playClick();
+    if (typeof window !== "undefined" && (window as unknown as { solana?: { isPhantom?: boolean; connect: () => Promise<{ publicKey: { toString: () => string } }> } }).solana) {
+      try {
+        const solana = (window as unknown as { solana: { connect: () => Promise<{ publicKey: { toString: () => string } }> } }).solana;
+        const res = await solana.connect();
+        setWalletAddress(res.publicKey.toString());
+      } catch (err) {
+        console.error("User rejected wallet connection:", err);
+      }
+    } else {
+      alert("Phantom wallet not detected. Please install Phantom from phantom.app to use Real SOL mode!");
+    }
+  };
+
+  const handleTributeSuccess = (newTribute: TributeItem) => {
+    setTributes((prev) => [newTribute, ...prev]);
+  };
 
   return (
     <main className="relative flex flex-col h-screen w-screen overflow-hidden bg-vaultBg font-mono select-none">
@@ -61,6 +119,9 @@ export default function GreedVaultPage() {
         onSelectGameMode={setGameMode}
         arcadeBalance={arcadeBalance}
         onResetArcadeBalance={resetArcadeBalance}
+        walletAddress={walletAddress}
+        onConnectWallet={handleConnectWallet}
+        onOpenTributeModal={() => setIsTributeModalOpen(true)}
       />
 
       {/* 2. Main 3D Viewport & HUD Overlay */}
@@ -218,6 +279,30 @@ export default function GreedVaultPage() {
             )}
           </div>
         </div>
+
+        {/* Floating Leaderboard Toggle (Bottom-Left) */}
+        <div className="absolute bottom-6 left-6 z-20 hidden sm:block">
+          <button
+            onClick={() => setShowLeaderboard(!showLeaderboard)}
+            className="flex items-center gap-2 px-3.5 py-2.5 rounded-xl bg-vaultPanel/90 border border-vaultBorder hover:border-goldAccent/50 backdrop-blur-md text-white font-mono text-xs shadow-xl transition-all"
+          >
+            <Trophy className="w-4 h-4 text-goldAccent" />
+            <span className="font-bold">DEV TRIBUTES</span>
+            <span className="bg-goldAccent/20 text-goldAccent px-1.5 py-0.5 rounded text-[10px] font-black">
+              {tributes.length}
+            </span>
+          </button>
+        </div>
+
+        {/* Floating Leaderboard Drawer */}
+        {showLeaderboard && (
+          <div className="absolute bottom-20 left-6 z-30 animate-fadeIn">
+            <TributeLeaderboard
+              tributes={tributes}
+              onOpenTributeModal={() => setIsTributeModalOpen(true)}
+            />
+          </div>
+        )}
       </div>
 
       {/* 3. Certificate Diagnostic Modal */}
@@ -228,7 +313,16 @@ export default function GreedVaultPage() {
         onPlayAgain={resetRun}
       />
 
-      {/* 4. Token & Pump.fun Banner */}
+      {/* 4. Direct Dev Tribute / Donation Modal */}
+      <DevTributeModal
+        isOpen={isTributeModalOpen}
+        onClose={() => setIsTributeModalOpen(false)}
+        walletAddress={walletAddress}
+        onConnectWallet={handleConnectWallet}
+        onTributeSuccess={handleTributeSuccess}
+      />
+
+      {/* 5. Token & Pump.fun Banner */}
       <TokenBanner />
     </main>
   );

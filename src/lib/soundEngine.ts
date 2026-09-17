@@ -241,6 +241,48 @@ class GreedSoundEngine {
       osc.stop(now + i * 0.08 + 0.45);
     });
   }
+
+  /**
+   * Resonant bronze tribute gong + coin fanfare
+   */
+  public playTributeGong() {
+    if (this.isMuted) return;
+    const ctx = this.getContext();
+    if (!ctx) return;
+
+    const now = ctx.currentTime;
+
+    // Deep bronze gong fundamental
+    const gongOsc = ctx.createOscillator();
+    const gongGain = ctx.createGain();
+    gongOsc.type = "sine";
+    gongOsc.frequency.setValueAtTime(110, now);
+    gongOsc.frequency.exponentialRampToValueAtTime(108, now + 2.0);
+
+    gongGain.gain.setValueAtTime(0.6, now);
+    gongGain.gain.exponentialRampToValueAtTime(0.001, now + 2.2);
+
+    gongOsc.connect(gongGain);
+    gongGain.connect(ctx.destination);
+
+    gongOsc.start(now);
+    gongOsc.stop(now + 2.2);
+
+    // Shimmering overtone
+    const overtone = ctx.createOscillator();
+    const overGain = ctx.createGain();
+    overtone.type = "triangle";
+    overtone.frequency.setValueAtTime(329.63, now);
+
+    overGain.gain.setValueAtTime(0.3, now);
+    overGain.gain.exponentialRampToValueAtTime(0.001, now + 1.4);
+
+    overtone.connect(overGain);
+    overGain.connect(ctx.destination);
+
+    overtone.start(now);
+    overtone.stop(now + 1.4);
+  }
 }
 
 export const soundEngine = new GreedSoundEngine();
