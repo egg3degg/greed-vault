@@ -8,6 +8,8 @@ import { GreedCertificateModal } from "@/components/ui/GreedCertificateModal";
 import { DevTributeModal } from "@/components/ui/DevTributeModal";
 import { WalletModal } from "@/components/ui/WalletModal";
 import { TributeLeaderboard } from "@/components/ui/TributeLeaderboard";
+import { LotterySection } from "@/components/ui/LotterySection";
+import { DocsModal } from "@/components/ui/DocsModal";
 import { TokenBanner } from "@/components/ui/TokenBanner";
 import { TributeItem, SupportedWallet, sendSolTribute } from "@/lib/solanaTribute";
 import { soundEngine } from "@/lib/soundEngine";
@@ -86,6 +88,8 @@ export default function GreedVaultPage() {
   const [isWalletModalOpen, setIsWalletModalOpen] = useState<boolean>(false);
   const [isTributeModalOpen, setIsTributeModalOpen] = useState<boolean>(false);
   const [showLeaderboard, setShowLeaderboard] = useState<boolean>(false);
+  const [activeTab, setActiveTab] = useState<"vault" | "lottery">("vault");
+  const [isDocsModalOpen, setIsDocsModalOpen] = useState<boolean>(false);
   const [tributes, setTributes] = useState<TributeItem[]>(INITIAL_TRIBUTES);
 
   const isFlipping = gameStatus === "FLIPPING";
@@ -135,10 +139,14 @@ export default function GreedVaultPage() {
         walletAddress={walletAddress}
         onConnectWallet={() => setIsWalletModalOpen(true)}
         onOpenTributeModal={() => setIsTributeModalOpen(true)}
+        activeTab={activeTab}
+        onSelectTab={setActiveTab}
+        onOpenDocs={() => setIsDocsModalOpen(true)}
       />
 
-      {/* 2. Main 3D Viewport & HUD Overlay */}
-      <div className="relative flex-1 min-h-0 w-full h-full overflow-hidden">
+      {/* 2. Main Content Viewport (3D Vault vs 3-Min Lottery) */}
+      {activeTab === "vault" ? (
+        <div className="relative flex-1 min-h-0 w-full h-full overflow-hidden">
         {/* Ambient Center Glows behind 3D Coin for rich lighting */}
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-goldAccent/15 rounded-full blur-[110px] pointer-events-none z-0" />
         <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[450px] h-[450px] bg-emeraldWin/12 rounded-full blur-[90px] pointer-events-none z-0" />
@@ -324,6 +332,15 @@ export default function GreedVaultPage() {
           </div>
         )}
       </div>
+      ) : (
+        <div className="flex-1 min-h-0 w-full h-full overflow-y-auto pb-24">
+          <LotterySection
+            walletAddress={walletAddress}
+            onConnectWallet={() => setIsWalletModalOpen(true)}
+            onOpenDocs={() => setIsDocsModalOpen(true)}
+          />
+        </div>
+      )}
 
       {/* 3. Certificate Diagnostic Modal */}
       <GreedCertificateModal
@@ -350,7 +367,13 @@ export default function GreedVaultPage() {
         onConnected={handleWalletConnected}
       />
 
-      {/* 6. Token & Pump.fun Banner */}
+      {/* 6. Protocol Docs Modal */}
+      <DocsModal
+        isOpen={isDocsModalOpen}
+        onClose={() => setIsDocsModalOpen(false)}
+      />
+
+      {/* 7. Token & Pump.fun Banner */}
       <TokenBanner />
     </main>
   );
