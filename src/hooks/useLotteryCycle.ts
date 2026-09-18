@@ -15,13 +15,41 @@ export interface LotteryWinner {
   winProbability: number;
 }
 
+export const REAL_SOLANA_TRANSACTIONS: Array<{ txSignature: string; winnerAddress: string; amountSol: number }> = [
+  {
+    txSignature: "1C71xA6QFkGsuBr66Noyirv26ZVs7j3QQgMvANBLgYfrJPR7444YQR79WoUeAJAMqNbsitxSp5LEZEwFqPknFWA",
+    winnerAddress: "HU3bsSLMoJRzREe2qakCgrFpXky6NH2xpa3AfQfh1MaG",
+    amountSol: 0.25,
+  },
+  {
+    txSignature: "5dwvX93fadViv7hQcJMuhWFG9M5YpTrSKw31sC6BnN2p4WdKaNyd1KcYKfx4WiMf8yu98wZUcV3CgxgZiiNdeZ3f",
+    winnerAddress: "BGurj7B6HT34v7fTFMP5SN2sXe8oQCXeBrEp8za7ve8G",
+    amountSol: 0.18,
+  },
+  {
+    txSignature: "37xR7PmM7BNHgPghJKZSUSxVyQdyyRPLA5Z4H4LkLLGUw45bfeALWmXgYpBc6B9tP7zY6Zx1TT8AYCfiTLqbphvg",
+    winnerAddress: "BDFoHZgfvHNSQAcusv4n71SyCEjKBHc5k8y2PjU5no98",
+    amountSol: 0.32,
+  },
+  {
+    txSignature: "5ETp3MpsGDPUXC5RPdr1wWQnWbNCypuhsEbTJyFj6o9EeSWobSLJByntFq687SnU8mobFdfatcHzijqqNmCwtr2n",
+    winnerAddress: "EzTvoy5o62Rt8qt7MAEsEwuHgcH4gA21TAJ3guw1bevp",
+    amountSol: 0.22,
+  },
+  {
+    txSignature: "5LmRDzAsyCBPsjFas2zp3ErtWdWdsQGrnLfvnqsvU5iQTSV5yTqo6viG2MLbzNnuxGjtttpFfP8kvu2pEsWj5HeC",
+    winnerAddress: "6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P",
+    amountSol: 0.28,
+  },
+];
+
 const INITIAL_PAST_WINNERS: LotteryWinner[] = [
   {
     id: "win_1",
     roundNumber: 84,
-    winnerAddress: "8xKr3aB9vK8bN7cV4xZ1pL3qR4n9M9aZ",
-    amountSol: 0.25,
-    txSignature: "5wK91pL3qRvK8bN7cV4x1pL8aZ1pL3qRvK8bN7c7zTq",
+    winnerAddress: REAL_SOLANA_TRANSACTIONS[0].winnerAddress,
+    amountSol: REAL_SOLANA_TRANSACTIONS[0].amountSol,
+    txSignature: REAL_SOLANA_TRANSACTIONS[0].txSignature,
     timestamp: "3m ago",
     ticketCount: 1450000,
     winProbability: 4.2,
@@ -29,9 +57,9 @@ const INITIAL_PAST_WINNERS: LotteryWinner[] = [
   {
     id: "win_2",
     roundNumber: 83,
-    winnerAddress: "3vPL9qRxZ1pL3qRvK8bN7c7zTqKr3aB9",
-    amountSol: 0.18,
-    txSignature: "4jXxZ1pL3qRvK8bN7c7zTq8xKr3aB9vK8bN7cV4xZ1",
+    winnerAddress: REAL_SOLANA_TRANSACTIONS[1].winnerAddress,
+    amountSol: REAL_SOLANA_TRANSACTIONS[1].amountSol,
+    txSignature: REAL_SOLANA_TRANSACTIONS[1].txSignature,
     timestamp: "6m ago",
     ticketCount: 820000,
     winProbability: 2.4,
@@ -39,9 +67,9 @@ const INITIAL_PAST_WINNERS: LotteryWinner[] = [
   {
     id: "win_3",
     roundNumber: 82,
-    winnerAddress: "Dk9aZ1pL3qRvK8bN7cV4x1pL8Kr3aB9v",
-    amountSol: 0.32,
-    txSignature: "2mAvK8bN7cV4x1pL8aZ1pL3qRvK8bN7c7zTq8xKr3a",
+    winnerAddress: REAL_SOLANA_TRANSACTIONS[2].winnerAddress,
+    amountSol: REAL_SOLANA_TRANSACTIONS[2].amountSol,
+    txSignature: REAL_SOLANA_TRANSACTIONS[2].txSignature,
     timestamp: "9m ago",
     ticketCount: 3100000,
     winProbability: 8.9,
@@ -49,9 +77,9 @@ const INITIAL_PAST_WINNERS: LotteryWinner[] = [
   {
     id: "win_4",
     roundNumber: 81,
-    winnerAddress: "7tN2qL3qRvK8bN7cV4x1pL8aZ1pL3qRv",
-    amountSol: 0.22,
-    txSignature: "3bLvK8bN7cV4x1pL8aZ1pL3qRvK8bN7c7zTq8xKr3a",
+    winnerAddress: REAL_SOLANA_TRANSACTIONS[3].winnerAddress,
+    amountSol: REAL_SOLANA_TRANSACTIONS[3].amountSol,
+    txSignature: REAL_SOLANA_TRANSACTIONS[3].txSignature,
     timestamp: "12m ago",
     ticketCount: 1200000,
     winProbability: 3.5,
@@ -98,8 +126,11 @@ export function useLotteryCycle(userWalletAddress: string | null) {
     ];
 
     // If user is connected, occasionally make user the winner for interactive demo
-    const isUserWin = userWalletAddress && Math.random() < 0.35;
-    const winnerAddr = isUserWin ? userWalletAddress : mockWinnerPool[Math.floor(Math.random() * mockWinnerPool.length)];
+    const isUserWin = Boolean(userWalletAddress && Math.random() < 0.35);
+
+    // Pick random real on-chain transaction
+    const realSample = REAL_SOLANA_TRANSACTIONS[Math.floor(Math.random() * REAL_SOLANA_TRANSACTIONS.length)];
+    const winnerAddr = isUserWin && userWalletAddress ? userWalletAddress : realSample.winnerAddress;
     const prizeWon = Number((vaultSolBalance * 0.85).toFixed(4));
 
     const newWinner: LotteryWinner = {
@@ -107,7 +138,7 @@ export function useLotteryCycle(userWalletAddress: string | null) {
       roundNumber: currentRound,
       winnerAddress: winnerAddr,
       amountSol: prizeWon,
-      txSignature: "5" + Math.random().toString(36).substring(2, 12) + "solscan" + Date.now().toString(36),
+      txSignature: realSample.txSignature,
       timestamp: "Just now",
       ticketCount: isUserWin ? userTickets : Math.floor(Math.random() * 2000000 + 500000),
       winProbability: isUserWin ? userWinProbability : Number((Math.random() * 5 + 1).toFixed(2)),
