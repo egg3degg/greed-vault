@@ -12,6 +12,8 @@ import {
   ChevronRight,
   ShieldCheck,
   Zap,
+  Ticket,
+  TrendingUp,
 } from "lucide-react";
 import { LotteryWinner } from "@/hooks/useLotteryCycle";
 
@@ -97,6 +99,20 @@ export function MainLotteryWidget({
 
         {!isMinimized && (
           <>
+            {/* PROMINENT HOLDER ADVANTAGE BANNER */}
+            <div className="bg-gradient-to-r from-amber-500/20 via-goldAccent/25 to-emeraldWin/20 border-2 border-goldAccent/60 rounded-xl p-2 text-center shadow-[0_0_20px_rgba(255,215,0,0.15)] flex flex-col gap-1">
+              <div className="flex items-center justify-center gap-1.5 text-xs font-black text-white font-mono">
+                <Ticket className="w-3.5 h-3.5 text-goldAccent" />
+                <span className="text-goldAccent">1 $GREED</span>
+                <span className="text-textMuted">=</span>
+                <span className="text-emeraldWin">1 TICKET</span>
+              </div>
+              <div className="text-[9.5px] font-mono font-black text-amber-200 bg-black/50 py-0.5 px-2 rounded-lg border border-goldAccent/30 flex items-center justify-center gap-1 uppercase tracking-tight">
+                <TrendingUp className="w-3 h-3 text-emeraldWin animate-pulse" />
+                <span>HOLD MORE = HIGHER CHANCE TO WIN!</span>
+              </div>
+            </div>
+
             {/* Live 3-Minute Timer & Progress Bar */}
             <div className="bg-vaultBg/80 border border-vaultBorder rounded-xl p-2.5 flex flex-col gap-1.5">
               <div className="flex items-center justify-between text-xs">
@@ -169,6 +185,41 @@ export function MainLotteryWidget({
                   <ExternalLink className="w-3 h-3" />
                 </a>
               </div>
+            </div>
+
+            {/* Bag Size vs. Odds Ladder Bar */}
+            <div className="bg-vaultBg/70 border border-vaultBorder rounded-xl p-2 flex flex-col gap-1.5">
+              <div className="flex items-center justify-between text-[9px] font-mono">
+                <span className="text-textMuted font-bold uppercase">BAG SIZE</span>
+                <span className="text-goldAccent font-black uppercase">WIN PROBABILITY</span>
+              </div>
+              <div className="grid grid-cols-4 gap-1 text-[8.5px] font-mono font-bold text-center">
+                <div className="p-1 rounded bg-white/5 border border-white/10 text-slate-300">
+                  <div className="text-slate-400 text-[7.5px]">50K</div>
+                  <div className="text-emeraldWin font-black">0.14%</div>
+                </div>
+                <div className="p-1 rounded bg-white/5 border border-white/10 text-slate-300">
+                  <div className="text-slate-400 text-[7.5px]">500K</div>
+                  <div className="text-emeraldWin font-black">1.43%</div>
+                </div>
+                <div className="p-1 rounded bg-goldAccent/15 border border-goldAccent/40 text-goldAccent">
+                  <div className="text-goldAccent text-[7.5px]">2.5M</div>
+                  <div className="text-emeraldWin font-black">7.14%</div>
+                </div>
+                <div className="p-1 rounded bg-emeraldWin/15 border border-emeraldWin/40 text-emeraldWin">
+                  <div className="text-emeraldWin text-[7.5px]">10M 👑</div>
+                  <div className="text-emeraldWin font-black">28.6%</div>
+                </div>
+              </div>
+              <a
+                href={process.env.NEXT_PUBLIC_PUMPFUN_URL || "https://pump.fun/create"}
+                target="_blank"
+                rel="noreferrer"
+                className="w-full py-1.5 rounded-lg bg-goldAccent hover:bg-[#E5C100] text-black text-[9.5px] font-mono font-black flex items-center justify-center gap-1 transition-all shadow-md mt-0.5"
+              >
+                <Zap className="w-3 h-3 fill-black" />
+                <span>BUY MORE $GREED TO BOOST ODDS ⚡</span>
+              </a>
             </div>
 
             {/* User Ticket Status & Instant Cashout Button */}

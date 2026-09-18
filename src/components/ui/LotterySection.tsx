@@ -20,6 +20,10 @@ import {
   ExternalLink,
   BookOpen,
   Github,
+  Ticket,
+  TrendingUp,
+  Calculator,
+  Zap,
 } from "lucide-react";
 
 interface LotterySectionProps {
@@ -49,6 +53,10 @@ export function LotterySection({
     hasClaimedCurrentRound,
     claimPrize,
   } = useLotteryCycle(walletAddress);
+
+  const [calculatorTokens, setCalculatorTokens] = useState<number>(1000000);
+  const calcProbability = ((calculatorTokens / (totalTicketWeight || 35000000)) * 100).toFixed(2);
+  const calcEstimatedDailyWins = ((480 * Number(calcProbability)) / 100).toFixed(1);
 
   const [copiedCa, setCopiedCa] = useState<boolean>(false);
   const tokenCA = process.env.NEXT_PUBLIC_TOKEN_MINT || "";
@@ -146,6 +154,164 @@ export function LotterySection({
             )}
           </div>
         </button>
+      </div>
+
+      {/* 2.5 The Golden Rule: Hold More $GREED = Higher Odds to Win */}
+      <div className="my-6 p-6 md:p-8 rounded-3xl bg-gradient-to-br from-amber-500/15 via-vaultPanel to-emeraldWin/10 border-2 border-goldAccent/50 relative overflow-hidden shadow-[0_0_30px_rgba(255,215,0,0.15)]">
+        <div className="absolute top-0 right-0 w-96 h-96 bg-goldAccent/10 rounded-full blur-[100px] pointer-events-none" />
+        
+        {/* Banner Header */}
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-white/10 pb-6">
+          <div>
+            <div className="flex items-center gap-2 mb-1.5">
+              <span className="text-xl">📈</span>
+              <span className="text-xs font-black text-goldAccent uppercase tracking-wider font-mono bg-goldAccent/10 border border-goldAccent/30 px-2.5 py-0.5 rounded-full">
+                THE CORE TOKENOMICS RULE
+              </span>
+            </div>
+            <h3 className="text-xl md:text-2xl font-black text-white tracking-tight font-mono">
+              HOLD MORE $GREED = HIGHER ODDS OF WINNING SOL
+            </h3>
+            <p className="text-xs md:text-sm text-textMuted mt-1">
+              The 3-minute lottery is balance-weighted: <strong className="text-white font-mono">1 $GREED Token = 1 Lottery Ticket</strong>. Every additional token you hold directly multiplies your mathematical probability of winning the accumulated SOL creator fees.
+            </p>
+          </div>
+
+          <a
+            href={process.env.NEXT_PUBLIC_PUMPFUN_URL || "https://pump.fun/create"}
+            target="_blank"
+            rel="noreferrer"
+            className="shrink-0 flex items-center gap-2 px-5 py-3 rounded-2xl bg-goldAccent hover:bg-[#E5C100] text-black font-black text-xs md:text-sm transition-all shadow-[0_0_20px_rgba(255,215,0,0.35)] active:scale-95"
+          >
+            <Zap className="w-4 h-4 fill-black" />
+            <span>BUY MORE $GREED ⚡</span>
+          </a>
+        </div>
+
+        {/* Tier Comparison Ladder */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 my-6">
+          <div className="p-3.5 rounded-2xl bg-vaultBg/80 border border-vaultBorder flex flex-col justify-between">
+            <div>
+              <div className="flex items-center justify-between text-xs font-mono text-textMuted font-bold">
+                <span>🦐 SHRIMP</span>
+                <span>0.14%</span>
+              </div>
+              <div className="text-base font-black text-white font-mono my-1">50,000</div>
+              <span className="text-[10px] text-textMuted block font-mono">50,000 Tickets</span>
+            </div>
+            <span className="text-[10px] text-slate-400 font-mono mt-2 pt-2 border-t border-white/5">
+              Baseline Entry Tier
+            </span>
+          </div>
+
+          <div className="p-3.5 rounded-2xl bg-vaultBg/80 border border-vaultBorder flex flex-col justify-between">
+            <div>
+              <div className="flex items-center justify-between text-xs font-mono text-cyan-400 font-bold">
+                <span>🐬 DOLPHIN</span>
+                <span className="text-emeraldWin">1.43%</span>
+              </div>
+              <div className="text-base font-black text-white font-mono my-1">500,000</div>
+              <span className="text-[10px] text-textMuted block font-mono">500,000 Tickets</span>
+            </div>
+            <span className="text-[10px] text-emeraldWin font-mono font-bold mt-2 pt-2 border-t border-white/5">
+              10x Higher Odds! 🚀
+            </span>
+          </div>
+
+          <div className="p-3.5 rounded-2xl bg-vaultBg/80 border border-goldAccent/40 flex flex-col justify-between shadow-lg">
+            <div>
+              <div className="flex items-center justify-between text-xs font-mono text-goldAccent font-bold">
+                <span>🦈 SHARK</span>
+                <span className="text-emeraldWin">7.14%</span>
+              </div>
+              <div className="text-base font-black text-goldAccent font-mono my-1">2,500,000</div>
+              <span className="text-[10px] text-textMuted block font-mono">2,500,000 Tickets</span>
+            </div>
+            <span className="text-[10px] text-goldAccent font-mono font-bold mt-2 pt-2 border-t border-goldAccent/20">
+              50x Higher Odds! 🔥
+            </span>
+          </div>
+
+          <div className="p-3.5 rounded-2xl bg-emeraldWin/10 border-2 border-emeraldWin/50 flex flex-col justify-between shadow-[0_0_20px_rgba(0,240,146,0.2)]">
+            <div>
+              <div className="flex items-center justify-between text-xs font-mono text-emeraldWin font-bold">
+                <span>🐋 WHALE 👑</span>
+                <span>28.57%</span>
+              </div>
+              <div className="text-base font-black text-emeraldWin font-mono my-1">10,000,000+</div>
+              <span className="text-[10px] text-textMuted block font-mono">10M+ Tickets</span>
+            </div>
+            <span className="text-[10px] text-emeraldWin font-mono font-black mt-2 pt-2 border-t border-emeraldWin/20 animate-pulse">
+              Dominant Jackpot Odds!
+            </span>
+          </div>
+        </div>
+
+        {/* Interactive Odds Simulator */}
+        <div className="p-4 md:p-5 rounded-2xl bg-vaultBg/90 border border-vaultBorder flex flex-col gap-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+            <div className="flex items-center gap-2">
+              <Calculator className="w-4 h-4 text-goldAccent" />
+              <span className="text-xs font-black text-white font-mono uppercase">
+                INTERACTIVE HOLDER ODDS SIMULATOR
+              </span>
+            </div>
+            <span className="text-[11px] text-textMuted font-mono">
+              Total Ticket Pool: {totalTicketWeight.toLocaleString()} Tickets
+            </span>
+          </div>
+
+          {/* Quick Preset Buttons */}
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="text-xs text-textMuted font-bold">Select Bag:</span>
+            {[50000, 250000, 1000000, 2500000, 5000000, 10000000].map((amt) => (
+              <button
+                key={amt}
+                onClick={() => {
+                  soundEngine.playClick();
+                  setCalculatorTokens(amt);
+                }}
+                className={`px-3 py-1.5 rounded-xl text-xs font-mono font-bold transition-all ${
+                  calculatorTokens === amt
+                    ? "bg-goldAccent text-black shadow-md scale-105"
+                    : "bg-vaultPanel hover:bg-white/10 text-slate-300 border border-vaultBorder"
+                }`}
+              >
+                {(amt / 1000).toLocaleString()}K $GREED
+              </button>
+            ))}
+          </div>
+
+          {/* Computed Results Bar */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-3 border-t border-white/10 text-center font-mono">
+            <div className="p-3 rounded-xl bg-vaultPanel border border-vaultBorder">
+              <span className="text-[10px] text-textMuted font-bold block uppercase">
+                YOUR LOTTERY TICKETS
+              </span>
+              <span className="text-lg font-black text-white">
+                {calculatorTokens.toLocaleString()}
+              </span>
+            </div>
+
+            <div className="p-3 rounded-xl bg-goldAccent/10 border border-goldAccent/40">
+              <span className="text-[10px] text-goldAccent font-bold block uppercase">
+                WIN CHANCE (PER 3-MIN DRAW)
+              </span>
+              <span className="text-xl font-black text-goldAccent">
+                {calcProbability}%
+              </span>
+            </div>
+
+            <div className="p-3 rounded-xl bg-emeraldWin/10 border border-emeraldWin/40">
+              <span className="text-[10px] text-emeraldWin font-bold block uppercase">
+                ESTIMATED WINS / 24 HOURS
+              </span>
+              <span className="text-xl font-black text-emeraldWin">
+                ~{calcEstimatedDailyWins} Draws
+              </span>
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* 3. Primary Cycle Engine Dashboard (Countdown + Vault Pool) */}

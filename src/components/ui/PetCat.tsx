@@ -18,14 +18,14 @@ interface FloatingItem {
 }
 
 const CAT_QUOTES = [
-  "Meow! 1 $GREED = 1 Lucky Ticket! 🐟",
-  "Purrrrr... 3-min lottery is drawing soon! ✨",
-  "Pet me for +5% degen entropy! 🐾",
-  "Don't get cooked by greed, hooman! 😼",
-  "Neko blesses your 64X double flip! 👑",
-  "Dev fees taste like fresh tuna! 🐟",
-  "Hold tight and collect that SOL pot! 🪙",
-  "MEOWWW! Double down or no balls! 🚀",
+  "HOLD MORE $GREED = HIGHER ODDS TO WIN! 📈",
+  "Meow! 1 $GREED = 1 Lucky Ticket! 🎟️",
+  "Whales with bigger bags have huge win rates! 🐋",
+  "Stacking $GREED gives you more tickets every 3 mins! 🪙",
+  "A 2.5M bag has 7.1% odds every single round! ✨",
+  "Don't sell your tickets, hooman! HODL for the SOL drops! 😼",
+  "Dev fees taste like fresh tuna! 100% to holders! 🐟",
+  "Purrrrr... 3-min lottery is drawing soon! 🐾",
 ];
 
 export function PetCat({
