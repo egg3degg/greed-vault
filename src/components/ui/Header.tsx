@@ -111,7 +111,7 @@ export function Header({
         )}
 
         <a
-          href="https://github.com/egg3degg/greed-vault"
+          href="https://github.com/aranyachopra37-dot/greed-vault"
           target="_blank"
           rel="noopener noreferrer"
           className="flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-xs font-bold text-textMuted hover:text-white hover:bg-vaultBg border border-transparent hover:border-vaultBorder transition-all"

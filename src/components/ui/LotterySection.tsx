@@ -104,7 +104,7 @@ export function LotterySection({
           </button>
 
           <a
-            href="https://github.com/egg3degg/greed-vault"
+            href="https://github.com/aranyachopra37-dot/greed-vault"
             target="_blank"
             rel="noopener noreferrer"
             className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-vaultPanel border border-vaultBorder hover:border-cyan-400 text-textMuted hover:text-white text-xs font-bold transition-all shadow-md"
