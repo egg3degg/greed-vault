@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { DEV_WALLET, sendSolTribute, TributeItem } from "@/lib/solanaTribute";
+import { DEV_WALLET, sendSolTribute, TributeItem, SupportedWallet } from "@/lib/solanaTribute";
 import { soundEngine } from "@/lib/soundEngine";
 import confetti from "canvas-confetti";
 import { X, Flame, Coffee, Pizza, Crown, Sparkles, Check, AlertTriangle, ExternalLink } from "lucide-react";
@@ -10,7 +10,8 @@ interface DevTributeModalProps {
   isOpen: boolean;
   onClose: () => void;
   walletAddress: string | null;
-  onConnectWallet: () => Promise<void>;
+  connectedWalletType?: SupportedWallet;
+  onConnectWallet: () => void | Promise<void>;
   onTributeSuccess: (tribute: TributeItem) => void;
 }
 
@@ -25,17 +26,18 @@ export function DevTributeModal({
   isOpen,
   onClose,
   walletAddress,
+  connectedWalletType = "generic",
   onConnectWallet,
   onTributeSuccess,
 }: DevTributeModalProps) {
-  const [selectedAmount, setSelectedAmount] = useState<number>(0.05);
+  const [selectedAmount, setSelectedAmount] = useState<number>(0.1);
   const [customMessage, setCustomMessage] = useState<string>("");
   const [isSending, setIsSending] = useState<boolean>(false);
   const [txSignature, setTxSignature] = useState<string | null>(null);
 
   if (!isOpen) return null;
 
-  const currentTier = TIER_OPTIONS.find((t) => t.amount === selectedAmount) || TIER_OPTIONS[1];
+  const currentTier = TIER_OPTIONS.find((t) => t.amount === selectedAmount) || TIER_OPTIONS[2];
 
   const handleSendTribute = async () => {
     soundEngine.playClick();
@@ -46,7 +48,7 @@ export function DevTributeModal({
     }
 
     setIsSending(true);
-    const result = await sendSolTribute(selectedAmount, walletAddress);
+    const result = await sendSolTribute(selectedAmount, walletAddress, connectedWalletType);
     setIsSending(false);
 
     if (result.success && result.signature) {

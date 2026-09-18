@@ -11,7 +11,7 @@ interface HeaderProps {
   arcadeBalance: number;
   onResetArcadeBalance: () => void;
   walletAddress: string | null;
-  onConnectWallet: () => Promise<void>;
+  onConnectWallet: () => void | Promise<void>;
   onOpenTributeModal: () => void;
 }
 
@@ -37,7 +37,7 @@ export function Header({
   };
 
   return (
-    <header className="w-full border-b border-vaultBorder bg-vaultBg/80 backdrop-blur-md px-4 py-3 z-30 flex items-center justify-between">
+    <header className="w-full border-b border-vaultBorder bg-vaultPanel/85 backdrop-blur-xl px-4 py-3 z-30 flex items-center justify-between shadow-lg">
       {/* Brand */}
       <div className="flex items-center gap-3">
         <div className="flex items-center gap-2">
@@ -111,7 +111,7 @@ export function Header({
             <span>
               {walletAddress
                 ? `${walletAddress.slice(0, 4)}...${walletAddress.slice(-4)}`
-                : "Connect Phantom"}
+                : "Connect Wallet"}
             </span>
           </button>
         )}

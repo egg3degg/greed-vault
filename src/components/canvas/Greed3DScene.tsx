@@ -81,8 +81,9 @@ export function Greed3DScene({ gameStatus, lastOutcome, currentMultiplier }: Gre
 
     // 1. Scene & Camera
     const scene = new THREE.Scene();
-    scene.background = new THREE.Color("#050608");
-    scene.fog = new THREE.FogExp2("#050608", 0.08);
+    // Allow transparent background so rich CSS ambient gradients show through
+    scene.background = null;
+    scene.fog = new THREE.FogExp2("#0B0F19", 0.035);
 
     const camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 100);
     camera.position.set(0, 3.2, 5.5);
@@ -96,15 +97,15 @@ export function Greed3DScene({ gameStatus, lastOutcome, currentMultiplier }: Gre
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     container.appendChild(renderer.domElement);
 
-    // 3. Lighting Setup
-    const ambientLight = new THREE.AmbientLight("#1A202C", 1.2);
+    // 3. Bright, Vibrant Studio Lighting Setup
+    const ambientLight = new THREE.AmbientLight("#4A5B78", 2.4);
     scene.add(ambientLight);
 
-    // Top Dramatic Spotlight
-    const spotLight = new THREE.SpotLight("#FFE6A3", 4.5);
+    // Top Dramatic Spotlight on Coin
+    const spotLight = new THREE.SpotLight("#FFF0B3", 6.5);
     spotLight.position.set(0, 8, 2);
-    spotLight.angle = Math.PI / 4.5;
-    spotLight.penumbra = 0.6;
+    spotLight.angle = Math.PI / 4.2;
+    spotLight.penumbra = 0.5;
     spotLight.castShadow = true;
     spotLight.shadow.mapSize.width = 1024;
     spotLight.shadow.mapSize.height = 1024;
@@ -112,35 +113,41 @@ export function Greed3DScene({ gameStatus, lastOutcome, currentMultiplier }: Gre
     spotLightRef.current = spotLight;
 
     // Dynamic Rim / Tension Light (Green on win, Red on bust)
-    const rimLight = new THREE.PointLight("#00F092", 1.5, 10);
-    rimLight.position.set(0, 0.8, -1.8);
+    const rimLight = new THREE.PointLight("#00F092", 2.5, 12);
+    rimLight.position.set(0, 1.0, -1.8);
     scene.add(rimLight);
     rimLightRef.current = rimLight;
 
-    // Secondary soft fill
-    const fillLight = new THREE.DirectionalLight("#3B82F6", 0.4);
-    fillLight.position.set(-4, 2, -2);
+    // Golden Stage Bounce Light
+    const bounceLight = new THREE.PointLight("#FFD700", 2.2, 8);
+    bounceLight.position.set(0, 0.2, 1.8);
+    scene.add(bounceLight);
+
+    // Secondary cool blue fill
+    const fillLight = new THREE.DirectionalLight("#60A5FA", 0.8);
+    fillLight.position.set(-4, 3, -2);
     scene.add(fillLight);
 
-    // 4. Create Obsidian Pedestal
+    // 4. Create Luxury Brushed Cobalt/Obsidian Pedestal
     const pedestalGroup = new THREE.Group();
     const pedestalGeo = new THREE.CylinderGeometry(2.0, 2.3, 0.8, 32);
     const pedestalMat = new THREE.MeshStandardMaterial({
-      color: "#0B0D12",
-      roughness: 0.15,
-      metalness: 0.85,
+      color: "#1A2234",
+      roughness: 0.2,
+      metalness: 0.8,
     });
     const pedestal = new THREE.Mesh(pedestalGeo, pedestalMat);
     pedestal.position.y = -0.4;
     pedestal.receiveShadow = true;
     pedestalGroup.add(pedestal);
 
-    // Gold trim ring on pedestal
+    // Glowing Gold Trim Ring on Pedestal
     const trimGeo = new THREE.TorusGeometry(2.02, 0.04, 16, 64);
     const trimMat = new THREE.MeshStandardMaterial({
       color: "#FFD700",
+      emissive: "#554400",
       metalness: 0.95,
-      roughness: 0.2,
+      roughness: 0.15,
     });
     const trimRing = new THREE.Mesh(trimGeo, trimMat);
     trimRing.rotation.x = Math.PI / 2;

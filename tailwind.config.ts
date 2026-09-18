@@ -9,14 +9,17 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        vaultBg: "#06070A",
-        vaultPanel: "#0D0F14",
-        vaultBorder: "#1B202B",
+        vaultBg: "#0B0F19",
+        vaultPanel: "#141C2E",
+        vaultPanelHover: "#1A253D",
+        vaultBorder: "#27354E",
         goldAccent: "#FFD700",
+        goldGlow: "rgba(255, 215, 0, 0.35)",
         emeraldWin: "#00F092",
+        emeraldGlow: "rgba(0, 240, 146, 0.35)",
         crimsonBust: "#FF3344",
-        textMuted: "#6B7280",
-        textLight: "#E5E7EB",
+        textMuted: "#94A3B8",
+        textLight: "#F8FAFC",
       },
       fontFamily: {
         mono: [

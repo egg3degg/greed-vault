@@ -23,10 +23,10 @@ export interface RunSummary {
 export const MULTIPLIERS = [1, 2, 4, 8, 16, 32, 64];
 
 export function useGreedGame() {
-  const [gameMode, setGameMode] = useState<GameMode>("ARCADE");
+  const [gameMode, setGameMode] = useState<GameMode>("REAL_SOL");
   const [gameStatus, setGameStatus] = useState<GameStatus>("IDLE");
   const [currentLevel, setCurrentLevel] = useState<number>(0);
-  const [stakeAmount, setStakeAmount] = useState<number>(0.5);
+  const [stakeAmount, setStakeAmount] = useState<number>(0.1);
   const [arcadeBalance, setArcadeBalance] = useState<number>(5.0); // 5.0 pSOL default
   const [lastOutcome, setLastOutcome] = useState<"DOUBLE" | "BUST" | null>(null);
   const [activeRunSummary, setActiveRunSummary] = useState<RunSummary | null>(null);

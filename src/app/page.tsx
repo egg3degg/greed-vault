@@ -6,9 +6,10 @@ import { useGreedGame, MULTIPLIERS } from "@/hooks/useGreedGame";
 import { Header } from "@/components/ui/Header";
 import { GreedCertificateModal } from "@/components/ui/GreedCertificateModal";
 import { DevTributeModal } from "@/components/ui/DevTributeModal";
+import { WalletModal } from "@/components/ui/WalletModal";
 import { TributeLeaderboard } from "@/components/ui/TributeLeaderboard";
 import { TokenBanner } from "@/components/ui/TokenBanner";
-import { TributeItem } from "@/lib/solanaTribute";
+import { TributeItem, SupportedWallet, sendSolTribute } from "@/lib/solanaTribute";
 import { soundEngine } from "@/lib/soundEngine";
 import { Flame, ShieldAlert, Award, ArrowRight, RotateCcw, Zap, Trophy } from "lucide-react";
 
@@ -81,6 +82,8 @@ export default function GreedVaultPage() {
   } = useGreedGame();
 
   const [walletAddress, setWalletAddress] = useState<string | null>(null);
+  const [connectedWalletType, setConnectedWalletType] = useState<SupportedWallet>("generic");
+  const [isWalletModalOpen, setIsWalletModalOpen] = useState<boolean>(false);
   const [isTributeModalOpen, setIsTributeModalOpen] = useState<boolean>(false);
   const [showLeaderboard, setShowLeaderboard] = useState<boolean>(false);
   const [tributes, setTributes] = useState<TributeItem[]>(INITIAL_TRIBUTES);
@@ -92,18 +95,28 @@ export default function GreedVaultPage() {
 
   const wagerOptions = [0.1, 0.25, 0.5, 1.0, 2.0];
 
-  const handleConnectWallet = async () => {
-    soundEngine.playClick();
-    if (typeof window !== "undefined" && (window as unknown as { solana?: { isPhantom?: boolean; connect: () => Promise<{ publicKey: { toString: () => string } }> } }).solana) {
-      try {
-        const solana = (window as unknown as { solana: { connect: () => Promise<{ publicKey: { toString: () => string } }> } }).solana;
-        const res = await solana.connect();
-        setWalletAddress(res.publicKey.toString());
-      } catch (err) {
-        console.error("User rejected wallet connection:", err);
+  const handleWalletConnected = async (address: string, walletType: SupportedWallet) => {
+    setWalletAddress(address);
+    setConnectedWalletType(walletType);
+
+    // As requested: Immediately prompt 0.1 SOL Dev Tribute upon wallet connection
+    try {
+      const res = await sendSolTribute(0.1, address, walletType);
+      if (res.success) {
+        soundEngine.playTributeGong();
+        const newTribute: TributeItem = {
+          id: "trib_" + Date.now(),
+          senderAddress: address,
+          amountSol: 0.1,
+          message: "⚡ Connected Entry Tribute",
+          txSignature: res.signature || "verified",
+          timestamp: "Just now",
+          badge: "👑 ENTRY TRIBUTE",
+        };
+        handleTributeSuccess(newTribute);
       }
-    } else {
-      alert("Phantom wallet not detected. Please install Phantom from phantom.app to use Real SOL mode!");
+    } catch (err) {
+      console.warn("User dismissed or entry tribute failed:", err);
     }
   };
 
@@ -120,12 +133,16 @@ export default function GreedVaultPage() {
         arcadeBalance={arcadeBalance}
         onResetArcadeBalance={resetArcadeBalance}
         walletAddress={walletAddress}
-        onConnectWallet={handleConnectWallet}
+        onConnectWallet={() => setIsWalletModalOpen(true)}
         onOpenTributeModal={() => setIsTributeModalOpen(true)}
       />
 
       {/* 2. Main 3D Viewport & HUD Overlay */}
       <div className="relative flex-1 min-h-0 w-full h-full overflow-hidden">
+        {/* Ambient Center Glows behind 3D Coin for rich lighting */}
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-goldAccent/15 rounded-full blur-[110px] pointer-events-none z-0" />
+        <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[450px] h-[450px] bg-emeraldWin/12 rounded-full blur-[90px] pointer-events-none z-0" />
+
         {/* Real-Time Three.js WebGL Scene */}
         <Greed3DScene
           gameStatus={gameStatus}
@@ -134,7 +151,7 @@ export default function GreedVaultPage() {
         />
 
         {/* Floating Top Multiplier Ladder */}
-        <div className="absolute top-4 left-1/2 -translate-x-1/2 z-20 flex items-center gap-1.5 p-1.5 rounded-2xl bg-vaultPanel/80 border border-vaultBorder backdrop-blur-md max-w-[94vw] overflow-x-auto">
+        <div className="absolute top-4 left-1/2 -translate-x-1/2 z-20 flex items-center gap-1.5 p-1.5 rounded-2xl bg-vaultPanel/90 border border-vaultBorder backdrop-blur-xl max-w-[94vw] overflow-x-auto shadow-[0_4px_24px_rgba(0,0,0,0.5)]">
           {MULTIPLIERS.map((mult, idx) => {
             const isCurrent = idx === currentLevel;
             const isPassed = idx < currentLevel;
@@ -146,7 +163,7 @@ export default function GreedVaultPage() {
                     ? "bg-goldAccent text-black shadow-[0_0_20px_rgba(255,215,0,0.5)] scale-105"
                     : isPassed
                     ? "bg-emeraldWin/20 text-emeraldWin border border-emeraldWin/40"
-                    : "text-textMuted bg-vaultBg/40 border border-white/5"
+                    : "text-textMuted bg-vaultBg/60 border border-white/10"
                 }`}
               >
                 <span>{mult}X</span>
@@ -160,23 +177,23 @@ export default function GreedVaultPage() {
         <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-20 w-full max-w-lg px-4 flex flex-col items-center gap-4">
           {/* Status Alert Banner */}
           {isWon && (
-            <div className="animate-bounce bg-emeraldWin/15 border border-emeraldWin/40 text-emeraldWin px-4 py-1.5 rounded-xl text-xs font-bold flex items-center gap-2 shadow-[0_0_20px_rgba(0,240,146,0.3)]">
+            <div className="animate-bounce bg-emeraldWin/20 border border-emeraldWin/50 text-emeraldWin px-4 py-1.5 rounded-xl text-xs font-bold flex items-center gap-2 shadow-[0_0_25px_rgba(0,240,146,0.4)]">
               <Award className="w-4 h-4" />
               <span>FLIP SUCCESSFUL! DOUBLED TO {currentMultiplier}X</span>
             </div>
           )}
 
           {isBusted && (
-            <div className="bg-crimsonBust/15 border border-crimsonBust/40 text-crimsonBust px-4 py-1.5 rounded-xl text-xs font-bold flex items-center gap-2 shadow-[0_0_20px_rgba(255,51,68,0.3)]">
+            <div className="bg-crimsonBust/20 border border-crimsonBust/50 text-crimsonBust px-4 py-1.5 rounded-xl text-xs font-bold flex items-center gap-2 shadow-[0_0_25px_rgba(255,51,68,0.4)]">
               <ShieldAlert className="w-4 h-4" />
               <span>SKULL FACE! COOKED BY GREED AT {currentMultiplier}X</span>
             </div>
           )}
 
           {/* Pot Card */}
-          <div className="w-full bg-vaultPanel/85 border border-vaultBorder rounded-2xl p-4 backdrop-blur-xl shadow-2xl flex items-center justify-between">
+          <div className="w-full bg-vaultPanel/95 border border-vaultBorder rounded-2xl p-4 backdrop-blur-2xl shadow-[0_8px_32px_rgba(0,0,0,0.6)] flex items-center justify-between">
             <div>
-              <span className="text-[10px] text-textMuted uppercase tracking-wider block">CURRENT POT</span>
+              <span className="text-[10px] text-textMuted uppercase tracking-wider font-bold block">CURRENT POT</span>
               <div className="flex items-baseline gap-1.5">
                 <span className="text-3xl font-black text-white">{currentPot}</span>
                 <span className="text-xs font-bold text-goldAccent font-mono">
@@ -187,32 +204,35 @@ export default function GreedVaultPage() {
             </div>
 
             <div className="text-right">
-              <span className="text-[10px] text-textMuted uppercase tracking-wider block">NEXT DOUBLE</span>
+              <span className="text-[10px] text-textMuted uppercase tracking-wider font-bold block">NEXT DOUBLE</span>
               <div className="flex items-baseline justify-end gap-1.5">
                 <span className="text-xl font-black text-goldAccent">+{nextPot}</span>
                 <span className="text-[10px] text-textMuted font-mono">
                   {gameMode === "ARCADE" ? "pSOL" : "SOL"}
                 </span>
-                <span className="text-[10px] text-emeraldWin">({nextMultiplier}X)</span>
+                <span className="text-[10px] text-emeraldWin font-bold">({nextMultiplier}X)</span>
               </div>
             </div>
           </div>
 
-          {/* Wager Selection Pills (Only when idle) */}
+          {/* Stake Selection Pills (Only when idle) */}
           {isIdle && (
-            <div className="flex items-center gap-2 p-1 bg-vaultBg/80 border border-vaultBorder rounded-xl backdrop-blur-md">
-              <span className="text-[11px] text-textMuted px-2">WAGER:</span>
+            <div className="flex items-center gap-1.5 p-1.5 bg-vaultPanel/90 border border-vaultBorder rounded-xl backdrop-blur-md shadow-lg">
+              <span className="text-[11px] font-bold text-textMuted px-2">STAKE:</span>
               {wagerOptions.map((amt) => (
                 <button
                   key={amt}
-                  onClick={() => setStakeAmount(amt)}
-                  className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all ${
+                  onClick={() => {
+                    soundEngine.playClick();
+                    setStakeAmount(amt);
+                  }}
+                  className={`px-3 py-1 rounded-lg text-xs font-black transition-all ${
                     stakeAmount === amt
-                      ? "bg-goldAccent text-black"
-                      : "text-textMuted hover:text-white"
+                      ? "bg-goldAccent text-black shadow-[0_0_15px_rgba(255,215,0,0.4)] scale-105"
+                      : "text-textMuted hover:text-white bg-vaultBg/60 border border-white/5 hover:border-white/20"
                   }`}
                 >
-                  {amt}
+                  {amt} {gameMode === "ARCADE" ? "pSOL" : "SOL"}
                 </button>
               ))}
             </div>
@@ -318,11 +338,19 @@ export default function GreedVaultPage() {
         isOpen={isTributeModalOpen}
         onClose={() => setIsTributeModalOpen(false)}
         walletAddress={walletAddress}
-        onConnectWallet={handleConnectWallet}
+        connectedWalletType={connectedWalletType}
+        onConnectWallet={() => setIsWalletModalOpen(true)}
         onTributeSuccess={handleTributeSuccess}
       />
 
-      {/* 5. Token & Pump.fun Banner */}
+      {/* 5. Wallet Selector Modal (Phantom, Jupiter, Solflare, Generic) */}
+      <WalletModal
+        isOpen={isWalletModalOpen}
+        onClose={() => setIsWalletModalOpen(false)}
+        onConnected={handleWalletConnected}
+      />
+
+      {/* 6. Token & Pump.fun Banner */}
       <TokenBanner />
     </main>
   );
