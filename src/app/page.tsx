@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import dynamic from "next/dynamic";
 import { useGreedGame, MULTIPLIERS } from "@/hooks/useGreedGame";
+import { useLotteryCycle } from "@/hooks/useLotteryCycle";
 import { Header } from "@/components/ui/Header";
 import { GreedCertificateModal } from "@/components/ui/GreedCertificateModal";
 import { DevTributeModal } from "@/components/ui/DevTributeModal";
@@ -13,7 +14,7 @@ import { DocsModal } from "@/components/ui/DocsModal";
 import { TokenBanner } from "@/components/ui/TokenBanner";
 import { TributeItem, SupportedWallet, sendSolTribute } from "@/lib/solanaTribute";
 import { soundEngine } from "@/lib/soundEngine";
-import { Flame, ShieldAlert, Award, ArrowRight, RotateCcw, Zap, Trophy } from "lucide-react";
+import { Flame, ShieldAlert, Award, ArrowRight, RotateCcw, Zap, Trophy, Clock, Sparkles } from "lucide-react";
 
 const INITIAL_TRIBUTES: TributeItem[] = [
   {
@@ -92,6 +93,9 @@ export default function GreedVaultPage() {
   const [isDocsModalOpen, setIsDocsModalOpen] = useState<boolean>(false);
   const [tributes, setTributes] = useState<TributeItem[]>(INITIAL_TRIBUTES);
 
+  // Global lottery cycle hook for always-visible timer & winner wallet
+  const { formattedCountdown, lastWinner, vaultSolBalance } = useLotteryCycle(walletAddress);
+
   const isFlipping = gameStatus === "FLIPPING";
   const isIdle = gameStatus === "IDLE";
   const isWon = gameStatus === "ROUND_WON";
@@ -159,7 +163,7 @@ export default function GreedVaultPage() {
         />
 
         {/* Floating Top Multiplier Ladder */}
-        <div className="absolute top-4 left-1/2 -translate-x-1/2 z-20 flex items-center gap-1.5 p-1.5 rounded-2xl bg-vaultPanel/90 border border-vaultBorder backdrop-blur-xl max-w-[94vw] overflow-x-auto shadow-[0_4px_24px_rgba(0,0,0,0.5)]">
+        <div className="absolute top-3 left-1/2 -translate-x-1/2 z-20 flex items-center gap-1.5 p-1.5 rounded-2xl bg-vaultPanel/90 border border-vaultBorder backdrop-blur-xl max-w-[94vw] overflow-x-auto shadow-[0_4px_24px_rgba(0,0,0,0.5)]">
           {MULTIPLIERS.map((mult, idx) => {
             const isCurrent = idx === currentLevel;
             const isPassed = idx < currentLevel;
@@ -180,6 +184,31 @@ export default function GreedVaultPage() {
             );
           })}
         </div>
+
+        {/* Floating Top Mini Lottery Ticker (Timer & Winner Wallet Always Visible) */}
+        <button
+          onClick={() => {
+            soundEngine.playClick();
+            setActiveTab("lottery");
+          }}
+          className="absolute top-16 left-1/2 -translate-x-1/2 z-20 flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-vaultPanel/95 border border-vaultBorder hover:border-goldAccent/50 backdrop-blur-xl shadow-xl transition-all text-xs group cursor-pointer max-w-[94vw] overflow-x-auto"
+        >
+          <span className="flex items-center gap-1 text-goldAccent font-bold shrink-0">
+            <Sparkles className="w-3 h-3" />
+            3-MIN LOTTERY:
+          </span>
+          <span className="text-white font-mono font-black animate-pulse shrink-0">
+            ⏱ {formattedCountdown}
+          </span>
+          <span className="text-textMuted shrink-0">|</span>
+          <span className="text-textMuted shrink-0">WINNER:</span>
+          <span className="text-emeraldWin font-mono font-bold shrink-0">
+            {lastWinner.winnerAddress.slice(0, 4)}...{lastWinner.winnerAddress.slice(-4)}
+          </span>
+          <span className="text-[10px] text-textMuted group-hover:text-goldAccent transition-colors shrink-0">
+            (Open Live →)
+          </span>
+        </button>
 
         {/* Floating Center / Bottom Decision Deck */}
         <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-20 w-full max-w-lg px-4 flex flex-col items-center gap-4">

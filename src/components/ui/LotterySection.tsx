@@ -51,11 +51,16 @@ export function LotterySection({
   } = useLotteryCycle(walletAddress);
 
   const [copiedCa, setCopiedCa] = useState<boolean>(false);
-  const contractAddress = "WAITING_PUMP_FUN_CA";
+  const tokenCA = process.env.NEXT_PUBLIC_TOKEN_MINT || "";
+  const isCaReady = Boolean(tokenCA && tokenCA !== "WAITING_PUMP_FUN_CA");
 
   const handleCopyCa = () => {
+    if (!isCaReady) {
+      alert("Real Contract Address will be published immediately upon Pump.fun launch!");
+      return;
+    }
     soundEngine.playClick();
-    navigator.clipboard.writeText(contractAddress);
+    navigator.clipboard.writeText(tokenCA);
     setCopiedCa(true);
     setTimeout(() => setCopiedCa(false), 2000);
   };
@@ -120,17 +125,23 @@ export function LotterySection({
           <div className="flex items-center gap-3">
             <span className="text-xs font-bold text-textMuted uppercase tracking-wider">TOKEN CA</span>
             <span className="text-xs md:text-sm font-black text-white font-mono group-hover:text-goldAccent transition-colors">
-              {contractAddress}
+              {isCaReady ? tokenCA : "WAITING FOR PUMP.FUN LAUNCH"}
             </span>
           </div>
           <div className="flex items-center gap-2 text-xs text-textMuted group-hover:text-white">
-            {copiedCa ? (
-              <span className="flex items-center gap-1 text-emeraldWin font-bold">
-                <Check className="w-3.5 h-3.5" /> COPIED!
-              </span>
+            {isCaReady ? (
+              copiedCa ? (
+                <span className="flex items-center gap-1 text-emeraldWin font-bold">
+                  <Check className="w-3.5 h-3.5" /> COPIED!
+                </span>
+              ) : (
+                <span className="flex items-center gap-1">
+                  <Copy className="w-3.5 h-3.5" /> CLICK TO COPY
+                </span>
+              )
             ) : (
-              <span className="flex items-center gap-1">
-                <Copy className="w-3.5 h-3.5" /> CLICK TO COPY
+              <span className="text-[10px] bg-goldAccent/15 text-goldAccent px-2.5 py-1 rounded-full border border-goldAccent/30 font-bold animate-pulse">
+                PENDING CREATION
               </span>
             )}
           </div>
