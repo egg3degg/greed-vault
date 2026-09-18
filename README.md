@@ -70,7 +70,7 @@ npm run start
 ## 🌐 Deployments
 
 - **Production URL**: [https://greed-vault.pages.dev](https://greed-vault.pages.dev)
-- **Repository**: [https://github.com/aranyachopra37-dot/greed-vault](https://github.com/aranyachopra37-dot/greed-vault)
+- **Repository**: [https://github.com/egg3degg/greed-vault](https://github.com/egg3degg/greed-vault)
 - **Network**: Solana Mainnet-Beta
 
 ---

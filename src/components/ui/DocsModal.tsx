@@ -98,12 +98,12 @@ export function DocsModal({ isOpen, onClose }: DocsModalProps) {
             <div className="mt-3 flex items-center justify-between pt-2 border-t border-white/10">
               <span className="text-textMuted text-[11px]">Inspect the bot script:</span>
               <a
-                href="https://github.com/aranyachopra37-dot/greed-vault"
+                href="https://github.com/egg3degg/greed-vault"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center gap-1.5 text-xs font-bold text-white hover:text-goldAccent bg-white/5 hover:bg-white/10 px-3 py-1.5 rounded-xl border border-white/10 transition-all"
               >
-                <span>github.com/aranyachopra37-dot/greed-vault</span>
+                <span>github.com/egg3degg/greed-vault</span>
                 <ExternalLink className="w-3.5 h-3.5" />
               </a>
             </div>
