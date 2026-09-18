@@ -283,6 +283,121 @@ class GreedSoundEngine {
     overtone.start(now);
     overtone.stop(now + 1.4);
   }
+
+  /**
+   * Cute synthesized cat meow (frequency swept sine)
+   */
+  public playMeow() {
+    if (this.isMuted) return;
+    const ctx = this.getContext();
+    if (!ctx) return;
+
+    const now = ctx.currentTime;
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+
+    osc.type = "sine";
+    osc.frequency.setValueAtTime(460, now);
+    osc.frequency.exponentialRampToValueAtTime(920, now + 0.1);
+    osc.frequency.exponentialRampToValueAtTime(540, now + 0.28);
+
+    gain.gain.setValueAtTime(0, now);
+    gain.gain.linearRampToValueAtTime(0.22, now + 0.04);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.32);
+
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+
+    osc.start(now);
+    osc.stop(now + 0.32);
+  }
+
+  /**
+   * Warm feline purr vibration
+   */
+  public playPurr() {
+    if (this.isMuted) return;
+    const ctx = this.getContext();
+    if (!ctx) return;
+
+    const now = ctx.currentTime;
+    // Vibrato modulator
+    const mod = ctx.createOscillator();
+    const modGain = ctx.createGain();
+    mod.type = "sine";
+    mod.frequency.setValueAtTime(24, now); // 24Hz purr rumble
+    modGain.gain.setValueAtTime(30, now);
+
+    const carrier = ctx.createOscillator();
+    const mainGain = ctx.createGain();
+    carrier.type = "triangle";
+    carrier.frequency.setValueAtTime(110, now);
+
+    mod.connect(carrier.frequency);
+    carrier.connect(mainGain);
+    mainGain.connect(ctx.destination);
+
+    mainGain.gain.setValueAtTime(0.12, now);
+    mainGain.gain.exponentialRampToValueAtTime(0.001, now + 0.4);
+
+    mod.start(now);
+    carrier.start(now);
+    mod.stop(now + 0.4);
+    carrier.stop(now + 0.4);
+  }
+
+  /**
+   * Cheerful Shiba bark / squeak
+   */
+  public playBark() {
+    if (this.isMuted) return;
+    const ctx = this.getContext();
+    if (!ctx) return;
+
+    const now = ctx.currentTime;
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+
+    osc.type = "triangle";
+    osc.frequency.setValueAtTime(340, now);
+    osc.frequency.linearRampToValueAtTime(680, now + 0.05);
+    osc.frequency.exponentialRampToValueAtTime(220, now + 0.16);
+
+    gain.gain.setValueAtTime(0.2, now);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.18);
+
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+
+    osc.start(now);
+    osc.stop(now + 0.18);
+  }
+
+  /**
+   * Quirky Pepe ribbit
+   */
+  public playRibbit() {
+    if (this.isMuted) return;
+    const ctx = this.getContext();
+    if (!ctx) return;
+
+    const now = ctx.currentTime;
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+
+    osc.type = "sawtooth";
+    osc.frequency.setValueAtTime(160, now);
+    osc.frequency.exponentialRampToValueAtTime(90, now + 0.15);
+
+    gain.gain.setValueAtTime(0.2, now);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.2);
+
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+
+    osc.start(now);
+    osc.stop(now + 0.2);
+  }
 }
 
 export const soundEngine = new GreedSoundEngine();

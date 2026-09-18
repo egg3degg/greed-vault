@@ -12,6 +12,8 @@ import { TributeLeaderboard } from "@/components/ui/TributeLeaderboard";
 import { LotterySection } from "@/components/ui/LotterySection";
 import { DocsModal } from "@/components/ui/DocsModal";
 import { TokenBanner } from "@/components/ui/TokenBanner";
+import { MainLotteryWidget } from "@/components/ui/MainLotteryWidget";
+import { ShibaCompanion, PepeCompanion } from "@/components/ui/SmallAnimalCompanions";
 import { TributeItem, SupportedWallet, sendSolTribute } from "@/lib/solanaTribute";
 import { soundEngine } from "@/lib/soundEngine";
 import { Flame, ShieldAlert, Award, ArrowRight, RotateCcw, Zap, Trophy, Clock, Sparkles } from "lucide-react";
@@ -94,12 +96,32 @@ export default function GreedVaultPage() {
   const [tributes, setTributes] = useState<TributeItem[]>(INITIAL_TRIBUTES);
 
   // Global lottery cycle hook for always-visible timer & winner wallet
-  const { formattedCountdown, lastWinner, vaultSolBalance } = useLotteryCycle(walletAddress);
+  const {
+    secondsRemaining,
+    formattedCountdown,
+    currentRound,
+    vaultSolBalance,
+    vaultUsdValue,
+    lastWinner,
+    userClaimableSol,
+    isClaiming,
+    claimPrize: claimReward,
+    userTickets,
+    userWinProbability,
+  } = useLotteryCycle(walletAddress);
 
   const isFlipping = gameStatus === "FLIPPING";
   const isIdle = gameStatus === "IDLE";
   const isWon = gameStatus === "ROUND_WON";
   const isBusted = gameStatus === "BUSTED";
+
+  const petStatus: "idle" | "flipping" | "won" | "busted" = isWon
+    ? "won"
+    : isBusted
+    ? "busted"
+    : isFlipping
+    ? "flipping"
+    : "idle";
 
   const wagerOptions = [0.1, 0.25, 0.5, 1.0, 2.0];
 
@@ -185,13 +207,13 @@ export default function GreedVaultPage() {
           })}
         </div>
 
-        {/* Floating Top Mini Lottery Ticker (Timer & Winner Wallet Always Visible) */}
+        {/* Floating Top Mini Lottery Ticker (Timer & Winner Wallet - visible on mobile) */}
         <button
           onClick={() => {
             soundEngine.playClick();
             setActiveTab("lottery");
           }}
-          className="absolute top-16 left-1/2 -translate-x-1/2 z-20 flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-vaultPanel/95 border border-vaultBorder hover:border-goldAccent/50 backdrop-blur-xl shadow-xl transition-all text-xs group cursor-pointer max-w-[94vw] overflow-x-auto"
+          className="absolute top-16 left-1/2 -translate-x-1/2 z-20 flex md:hidden items-center gap-2 px-3.5 py-1.5 rounded-xl bg-vaultPanel/95 border border-vaultBorder hover:border-goldAccent/50 backdrop-blur-xl shadow-xl transition-all text-xs group cursor-pointer max-w-[94vw] overflow-x-auto"
         >
           <span className="flex items-center gap-1 text-goldAccent font-bold shrink-0">
             <Sparkles className="w-3 h-3" />
@@ -209,6 +231,31 @@ export default function GreedVaultPage() {
             (Open Live →)
           </span>
         </button>
+
+        {/* Right-Side Gamified 3-Minute Holder Lottery Station with Lucky Neko Pet */}
+        <div className="absolute top-14 sm:top-16 right-3 sm:right-6 lg:right-8 z-20 hidden md:flex">
+          <MainLotteryWidget
+            secondsRemaining={secondsRemaining}
+            formattedCountdown={formattedCountdown}
+            currentRound={currentRound}
+            vaultSolBalance={vaultSolBalance}
+            vaultUsdValue={vaultUsdValue}
+            lastWinner={lastWinner}
+            userWalletAddress={walletAddress}
+            userTickets={userTickets}
+            userWinProbability={userWinProbability}
+            userClaimableSol={userClaimableSol}
+            isClaiming={isClaiming}
+            onClaimReward={claimReward}
+            onOpenFullLottery={() => {
+              soundEngine.playClick();
+              setActiveTab("lottery");
+            }}
+            onConnectWallet={() => setIsWalletModalOpen(true)}
+            gameStatus={petStatus}
+            multiplier={currentMultiplier}
+          />
+        </div>
 
         {/* Floating Center / Bottom Decision Deck */}
         <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-20 w-full max-w-lg px-4 flex flex-col items-center gap-4">
@@ -337,8 +384,8 @@ export default function GreedVaultPage() {
           </div>
         </div>
 
-        {/* Floating Leaderboard Toggle (Bottom-Left) */}
-        <div className="absolute bottom-6 left-6 z-20 hidden sm:block">
+        {/* Floating Leaderboard Toggle & Shiba Companion (Bottom-Left) */}
+        <div className="absolute bottom-6 left-6 z-20 hidden sm:flex items-center gap-2.5">
           <button
             onClick={() => setShowLeaderboard(!showLeaderboard)}
             className="flex items-center gap-2 px-3.5 py-2.5 rounded-xl bg-vaultPanel/90 border border-vaultBorder hover:border-goldAccent/50 backdrop-blur-md text-white font-mono text-xs shadow-xl transition-all"
@@ -349,6 +396,13 @@ export default function GreedVaultPage() {
               {tributes.length}
             </span>
           </button>
+          <ShibaCompanion gameStatus={petStatus} multiplier={currentMultiplier} />
+        </div>
+
+        {/* Pepe Frog Mascot (Bottom-Right) */}
+        <div className="absolute bottom-6 right-6 z-20 hidden lg:flex items-center gap-2 bg-vaultPanel/85 border border-vaultBorder/80 px-2.5 py-1.5 rounded-xl backdrop-blur-md shadow-lg">
+          <span className="text-[10px] font-mono text-textMuted font-bold">LUCKY PEPE:</span>
+          <PepeCompanion gameStatus={petStatus} multiplier={currentMultiplier} />
         </div>
 
         {/* Floating Leaderboard Drawer */}
